@@ -1,18 +1,22 @@
 # file-loader
 
 # Backend
-## To load libraries + create DB and user: 
+## Loading libraries: 
 ```
 npm run build
 ```
+## Create DB and user: 
+```
+npm run setup
+```
 
-## To start the server:
+## Start the server:
 ```
 npm start
 ```
 
 # Frontend
-## To load libraries: 
+## Loading libraries: 
 ```
 cd client 
 ```
