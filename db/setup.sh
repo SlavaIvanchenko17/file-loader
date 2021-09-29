@@ -1,0 +1,1 @@
+sudo -u postgres psql -f ./db/install.sql
