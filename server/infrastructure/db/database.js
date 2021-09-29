@@ -15,7 +15,7 @@ class Database {
         dialect: 'postgres',
       },
     );
-    this.sequelize.sync({ force: false }).then(() => {
+    this.sequelize.sync({ force: true }).then(() => {
       console.log('Database synced');
     });
     this.models = {};

@@ -13,7 +13,7 @@ app.use(cors());
 app.use(morgan('dev'));
 
 const fileUpload = multer({
-  dest: '../../files',
+  dest: './files',
 });
 
 router.get('/file', controller.getFiles);
