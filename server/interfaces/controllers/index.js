@@ -20,7 +20,8 @@ const uploadFile = async (req, res) => {
 const downloadFile = async (req, res) => {
   try {
     const file = await service.getFileById(req.params.id, repositories);
-    res.download(file.path);
+    const { path } = file;
+    res.download(path);
   } catch (error) {
     console.error(error);
     res.send('download error');
