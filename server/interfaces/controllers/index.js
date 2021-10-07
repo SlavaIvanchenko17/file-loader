@@ -4,7 +4,6 @@ const fs = require('fs');
 const { promisify } = require('util');
 const repositories = require('../../infrastructure/repository');
 const service = require('../../application');
-const XLSX = require('xlsx')
 
 
 const unlinkAsync = promisify(fs.unlink);
@@ -59,7 +58,7 @@ const getFiles = async (req, res) => {
 const getLineItems = async (req, res) => {
   try {
     const lineItem = await service.getByIdLineItems(req.params.id, repositories);
-    res.send(JSON.parse(lineItem.items));
+    res.json(JSON.parse(lineItem.items));
   } catch (error) {
     console.error(error);
     res.send('Not found');
