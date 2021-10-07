@@ -58,9 +58,10 @@ class ViewFiles extends React.Component {
       fetch(`${this.link}/lineitems/${id}`)
       .then((result) => result.json())
       .then((result) => {
+        const items = JSON.parse(result.items);
         this.lineItems[id] = {
-          headers: result.headers,
-          rows: result.row
+          headers: items.headers,
+          rows: items.row
         }
         this.setState({
           lineItems: this.lineItems                             
@@ -125,7 +126,7 @@ class ViewFiles extends React.Component {
                                 <TableRow>
                                 {lineItems[id].headers.map(header => {
                                   return (<TableCell>{header.name}</TableCell>);
-                                })};
+                                })}
                                 </TableRow>
                               </TableHead>
                               <TableBody>
@@ -137,7 +138,7 @@ class ViewFiles extends React.Component {
                                     return ((<TableCell>{value}</TableCell>));
                                   })}
                                 </TableRow>);
-                              })};
+                              })}
                               </TableBody>
                            </Table>
                       </TableCell>

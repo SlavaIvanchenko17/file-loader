@@ -58,7 +58,7 @@ const getFiles = async (req, res) => {
 const getLineItems = async (req, res) => {
   try {
     const lineItem = await service.getByIdLineItems(req.params.id, repositories);
-    res.json(JSON.parse(lineItem.items));
+    res.json(lineItem);
   } catch (error) {
     console.error(error);
     res.send('Not found');
