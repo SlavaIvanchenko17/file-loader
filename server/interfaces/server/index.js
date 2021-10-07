@@ -18,11 +18,12 @@ const fileUpload = multer({
 
 router.get('/file', controller.getFiles);
 router.get('/file/:id', controller.downloadFile);
+router.get('/lineitems/:id', controller.getLineItems);
 router.post('/file', express.json(), fileUpload.array('file'), controller.uploadFile);
 router.delete('/file/:id', controller.deleteFile);
 
 app.use(router);
 
-app.listen(8000, () => {
+app.listen(8080, () => {
   console.log('app is running');
 });

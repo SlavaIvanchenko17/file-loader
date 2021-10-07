@@ -2,23 +2,25 @@ import React from 'react';
 import {
   Table,
   Paper,
-  TableBody,
   TableCell,
   TableHead,
   TableRow,
   Button,
-  ButtonGroup,
-  Dialog,
-  DialogTitle,
-  Input,
-  FormLabel,
   TablePagination,
-} from '@material-ui/core';
-import download from 'downloadjs';
+} from '@mui/material';
+import DialogBox from './components/Dialog';
+import ViewFiles from './components/ViewFiles';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
+    this.link = 'http://localhost:8080';
+    this.selectFiles = this.selectFiles.bind(this);
+    this.uploadFile = this.uploadFile.bind(this);
+    this.closeDialog = this.closeDialog.bind(this);
+    this.openDialog = this.openDialog.bind(this);
+    this.handleChangePage = this.handleChangePage.bind(this);
+    this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
     this.state = {
       selectedFiles: '',
       files: [],
@@ -29,7 +31,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    fetch('http://localhost:8000/file')
+    fetch(`${this.link}/file`)
       .then((result) => result.json())
       .then((result) => {
         this.setState({
@@ -63,17 +65,10 @@ class App extends React.Component {
     this.setState({ open: false });
   }
 
-  async deleteFile(id, i) {
-    const { files } = this.state;
+  async deleteFile(files, id, i) {
     files.splice(i, 1);
     this.setState({ files });
-    await fetch(`http://localhost:8000/file/${id}`, { method: 'DELETE' });
-  }
-
-  async downloadFile(file) {
-    const res = await fetch(`http://localhost:8000/file/${file.id}`);
-    const blob = await res.blob();
-    download(blob, `${file.filename}.${file.extension}`);
+    await fetch(`${this.link}/file/${id}`, { method: 'DELETE' });
   }
 
   async uploadFile(event) {
@@ -83,37 +78,35 @@ class App extends React.Component {
     for (const key of Object.keys(selectedFiles)) {
       formData.append('file', selectedFiles[key]);
     }
-    await fetch('http://localhost:8000/file', {
+    await fetch(`${this.link}/file`, {
       method: 'POST',
       body: formData,
     });
     this.componentDidMount();
+    this.closeDialog();
   }
 
   render() {
-    const {
-      selectedFiles, open, files, page, rowsPerPage,
+    const { 
+      selectedFiles, open, files, page, rowsPerPage
     } = this.state;
     return (
       <Paper>
-        <Dialog size="large" open={open}>
-          <DialogTitle>Choose files</DialogTitle>
-          <FormLabel>
-            <Input type="file" inputProps={{ multiple: true }} onChange={this.selectFiles.bind(this)} />
-          </FormLabel>
-          <ButtonGroup variant="outlined" aria-label="outlined button group" fullWidth>
-            <Button size="large" disabled={!selectedFiles} onClick={this.uploadFile.bind(this)}>Upload</Button>
-            <Button size="large" onClick={this.closeDialog.bind(this)}>Close</Button>
-          </ButtonGroup>
-        </Dialog>
-        <Table>
+        <DialogBox 
+          selectFiles={this.selectFiles}
+          uploadFile={this.uploadFile}
+          closeDialog={this.closeDialog}
+          selectedFiles={selectedFiles}
+          open={open}/>
+        <Table aria-label="collapsible table">
           <TableHead>
-            <TableCell align="center" colSpan={5}>
-              <Button color="primary" variant="contained" size="large" onClick={this.openDialog.bind(this)}>Upload</Button>
+            <TableCell align="center" colSpan={6}>
+              <Button color="primary" variant="contained" size="large" onClick={this.openDialog}>Upload</Button>
             </TableCell>
           </TableHead>
           <TableHead>
             <TableRow>
+              <TableCell/>
               <TableCell align="center">Id</TableCell>
               <TableCell align="center">Filename</TableCell>
               <TableCell align="center">Extension</TableCell>
@@ -121,37 +114,7 @@ class App extends React.Component {
               <TableCell align="center">Actions</TableCell>
             </TableRow>
           </TableHead>
-          <TableBody>
-            {files
-              .sort((a, b) => b.id - a.id)
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((file, i) => {
-                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                const date = new Date(file.date).toLocaleString('en-US', { timeZone: tz });
-                return (
-                  <TableRow key={`row-${i}`}>
-                    <TableCell align="center">{file.id}</TableCell>
-                    <TableCell align="center">{file.filename}</TableCell>
-                    <TableCell align="center">{file.extension}</TableCell>
-                    <TableCell align="center">{date}</TableCell>
-                    <TableCell align="center">
-                      <Button
-                        onClick={this.downloadFile.bind(this, file)}
-                        color="success"
-                      >
-                        Download
-                      </Button>
-                      <Button
-                        onClick={this.deleteFile.bind(this, file.id, i + page * rowsPerPage)}
-                        color="error"
-                      >
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-          </TableBody>
+          <ViewFiles files={files} page={page} rowsPerPage={rowsPerPage} deleteFile={this.deleteFile}/>
         </Table>
         <TablePagination
           rowsPerPageOptions={[5, 10, 20, 25]}
@@ -159,8 +122,8 @@ class App extends React.Component {
           component="div"
           rowsPerPage={rowsPerPage}
           page={page}
-          onPageChange={this.handleChangePage.bind(this)}
-          onRowsPerPageChange={this.handleChangeRowsPerPage.bind(this)}
+          onPageChange={this.handleChangePage}
+          onRowsPerPageChange={this.handleChangeRowsPerPage}
         />
       </Paper>
     );

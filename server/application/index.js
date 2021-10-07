@@ -18,4 +18,5 @@ const loadServices = (service) => {
 
 module.exports = {
   ...loadServices('File'),
+  ...loadServices('LineItems'),
 };

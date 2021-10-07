@@ -4,13 +4,15 @@ const fs = require('fs');
 const { promisify } = require('util');
 const repositories = require('../../infrastructure/repository');
 const service = require('../../application');
+const XLSX = require('xlsx')
+
 
 const unlinkAsync = promisify(fs.unlink);
 
 const uploadFile = async (req, res) => {
   try {
     const result = await service.createFile(req.files, repositories);
-    result.json('upload file(s)');
+    res.json('upload');
   } catch (error) {
     console.error(error);
     res.send('upload error');
@@ -32,7 +34,11 @@ const deleteFile = async (req, res) => {
   try {
     const file = await service.getFileById(req.params.id, repositories);
     await service.deleteFile(req.params.id, repositories);
-    const { path } = file;
+    const { path, extension } = file;
+    if(extension === 'csv') {
+      await service.deleteLineItems(req.params.id, repositories);
+    }
+    res.json('deleted')
     return unlinkAsync(path);
   } catch (error) {
     console.error(error);
@@ -50,9 +56,20 @@ const getFiles = async (req, res) => {
   }
 };
 
+const getLineItems = async (req, res) => {
+  try {
+    const lineItem = await service.getByIdLineItems(req.params.id, repositories);
+    res.send(JSON.parse(lineItem.items));
+  } catch (error) {
+    console.error(error);
+    res.send('Not found');
+  }
+};
+
 module.exports = {
   uploadFile,
   downloadFile,
   deleteFile,
   getFiles,
+  getLineItems,
 };
